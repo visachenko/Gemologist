@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Diamond
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,6 +56,15 @@ fun GemItem(
                 .clip(RoundedCornerShape(18.dp))
                 .background(placeholderColor(item.name)),
         ) {
+            Icon(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(48.dp),
+                imageVector = Icons.Outlined.Diamond,
+                contentDescription = null,
+                tint = placeholderIconColor(item.name),
+            )
+
             IconButton(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -102,12 +113,23 @@ private val FavoriteOutlineColor = Color(0xFF8E8E93)
 private val RatingStarColor = Color(0xFFFFB300)
 
 private fun placeholderColor(text: String): Color {
-    val hue = (text.hashCode() and Int.MAX_VALUE) % 360
     return Color.hsl(
-        hue = hue.toFloat(),
+        hue = placeholderHue(text),
         saturation = 0.35f,
         lightness = 0.82f,
     )
+}
+
+private fun placeholderIconColor(text: String): Color {
+    return Color.hsl(
+        hue = placeholderHue(text),
+        saturation = 0.42f,
+        lightness = 0.38f,
+    )
+}
+
+private fun placeholderHue(text: String): Float {
+    return ((text.hashCode() and Int.MAX_VALUE) % 360).toFloat()
 }
 
 @Preview(showBackground = true, widthDp = 180)
