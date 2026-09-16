@@ -7,7 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -29,15 +34,32 @@ import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun GemologistApp(modifier: Modifier = Modifier) {
+    var items by remember { mutableStateOf(SampleGemItems) }
     var selectedItemId by remember { mutableStateOf<String?>(null) }
+    var isAddingItem by remember { mutableStateOf(false) }
     var favoriteItemIds by remember { mutableStateOf(emptySet<String>()) }
-    val selectedItem = SampleGemItems.firstOrNull { it.id == selectedItemId }
+    var nextCustomItemId by remember { mutableStateOf(1) }
+    val selectedItem = items.firstOrNull { it.id == selectedItemId }
 
-    BackHandler(enabled = selectedItem != null) {
-        selectedItemId = null
+    BackHandler(enabled = isAddingItem || selectedItem != null) {
+        if (isAddingItem) isAddingItem = false else selectedItemId = null
     }
 
-    if (selectedItem == null) {
+    if (isAddingItem) {
+        AddGemScreen(
+            modifier = modifier,
+            onBackClick = { isAddingItem = false },
+            onAddClick = { name, rating, tags ->
+                items = items + GemItemModel(
+                    id = "custom-${nextCustomItemId++}",
+                    name = name,
+                    rating = rating,
+                    tags = tags,
+                )
+                isAddingItem = false
+            },
+        )
+    } else if (selectedItem == null) {
         Scaffold(
             modifier = modifier.fillMaxSize(),
             topBar = {
@@ -45,9 +67,21 @@ fun GemologistApp(modifier: Modifier = Modifier) {
                     title = { Text(stringResource(R.string.app_name)) },
                 )
             },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { isAddingItem = true },
+                    shape = CircleShape,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = stringResource(R.string.add_gem),
+                    )
+                }
+            },
         ) { contentPadding ->
             GemologistHome(
                 modifier = Modifier.padding(contentPadding),
+                items = items,
                 favoriteItemIds = favoriteItemIds,
                 onItemClick = { selectedItemId = it.id },
                 onFavoriteClick = { item ->
@@ -70,6 +104,7 @@ fun GemologistApp(modifier: Modifier = Modifier) {
 
 @Composable
 private fun GemologistHome(
+    items: List<GemItemModel>,
     favoriteItemIds: Set<String>,
     onItemClick: (GemItemModel) -> Unit,
     onFavoriteClick: (GemItemModel) -> Unit,
@@ -81,7 +116,7 @@ private fun GemologistHome(
         contentPadding = PaddingValues(16.dp),
     ) {
         items(
-            items = SampleGemItems,
+            items = items,
             key = { it.id },
         ) { item ->
             GemItem(

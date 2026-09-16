@@ -19,9 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,14 +28,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.tdpyramid.gemologist.R
 import ru.tdpyramid.gemologist.ui.components.GemItemModel
 import ru.tdpyramid.gemologist.ui.components.GemPreview
+import ru.tdpyramid.gemologist.ui.components.PreviewIconButton
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
 
 @Composable
@@ -71,7 +68,7 @@ fun GemDetailsScreen(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                DetailsIconButton(
+                PreviewIconButton(
                     onClick = onBackClick,
                     contentDescription = stringResource(R.string.back),
                 ) {
@@ -81,7 +78,7 @@ fun GemDetailsScreen(
                     )
                 }
 
-                DetailsIconButton(
+                PreviewIconButton(
                     onClick = onFavoriteClick,
                     contentDescription = stringResource(
                         if (isFavorite) R.string.remove_from_favorites else R.string.add_to_favorites,
@@ -139,31 +136,6 @@ fun GemDetailsScreen(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun DetailsIconButton(
-    onClick: () -> Unit,
-    contentDescription: String,
-    content: @Composable () -> Unit,
-) {
-    FilledIconButton(
-        modifier = Modifier.semantics {
-            this.contentDescription = contentDescription
-        },
-        onClick = onClick,
-        colors = IconButtonDefaults.filledIconButtonColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-        ),
-    ) {
-        Box(
-            modifier = Modifier,
-            contentAlignment = Alignment.Center,
-        ) {
-            content()
         }
     }
 }

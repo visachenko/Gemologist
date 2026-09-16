@@ -1,0 +1,406 @@
+package ru.tdpyramid.gemologist.ui
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import ru.tdpyramid.gemologist.R
+import ru.tdpyramid.gemologist.ui.components.GemPreview
+import ru.tdpyramid.gemologist.ui.components.PreviewIconButton
+import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun AddGemScreen(
+    onBackClick: () -> Unit,
+    onAddClick: (name: String, rating: Float, tags: List<String>) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var name by remember { mutableStateOf("") }
+    var rating by remember { mutableIntStateOf(0) }
+    var tagText by remember { mutableStateOf("") }
+    var selectedTags by remember { mutableStateOf(emptyList<String>()) }
+    var photoPlaceholders by remember { mutableStateOf(listOf("emerald-photo", "amethyst-photo")) }
+    var nextPhotoId by remember { mutableIntStateOf(1) }
+
+    fun addTag(tagValue: String = tagText) {
+        val tag = tagValue.trim().lowercase()
+        if (tag.isNotEmpty() && tag !in selectedTags) selectedTags = selectedTags + tag
+        tagText = ""
+    }
+
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.surface,
+        bottomBar = {
+            Surface(
+                modifier = Modifier.navigationBarsPadding(),
+                color = MaterialTheme.colorScheme.surface,
+            ) {
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 14.dp)
+                        .height(56.dp),
+                    enabled = name.isNotBlank() && rating > 0,
+                    onClick = { onAddClick(name.trim(), rating.toFloat(), selectedTags) },
+                    shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(containerColor = Purple),
+                ) {
+                    Text(
+                        text = stringResource(R.string.add),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
+        },
+    ) { contentPadding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = contentPadding,
+            verticalArrangement = Arrangement.spacedBy(22.dp),
+        ) {
+            item {
+                Row(
+                    modifier = Modifier
+                        .statusBarsPadding()
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(18.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    PreviewIconButton(
+                        onClick = onBackClick,
+                        contentDescription = stringResource(R.string.back),
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null,
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.add_gem_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
+
+            item {
+                PhotoStrip(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    photos = photoPlaceholders,
+                    onRemove = { photoPlaceholders = photoPlaceholders - it },
+                    onAdd = {
+                        photoPlaceholders = photoPlaceholders + "custom-photo-${nextPhotoId++}"
+                    },
+                )
+            }
+
+            item {
+                Column(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(22.dp),
+                ) {
+                    LabeledField(label = stringResource(R.string.name)) {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = name,
+                            onValueChange = { name = it },
+                            singleLine = true,
+                            placeholder = { Text(stringResource(R.string.gem_name_hint)) },
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(
+                            text = stringResource(R.string.rating),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                            (1..5).forEach { value ->
+                                IconButton(onClick = { rating = value }) {
+                                    Icon(
+                                        modifier = Modifier.size(38.dp),
+                                        imageVector = if (value <= rating) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                                        contentDescription = stringResource(R.string.rating_value, value),
+                                        tint = if (value <= rating) RatingStarColor else MaterialTheme.colorScheme.outline,
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    LabeledField(label = stringResource(R.string.tags)) {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = tagText,
+                            onValueChange = { tagText = it },
+                            singleLine = true,
+                            placeholder = { Text(stringResource(R.string.tags_hint)) },
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(onDone = { addTag() }),
+                            trailingIcon = {
+                                if (tagText.isNotEmpty()) {
+                                    IconButton(onClick = { tagText = "" }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Close,
+                                            contentDescription = stringResource(R.string.clear),
+                                        )
+                                    }
+                                }
+                            },
+                        )
+
+                        val suggestions = SuggestedTags.filter {
+                            tagText.isBlank() || it.contains(tagText.trim(), ignoreCase = true)
+                        }
+                        if (suggestions.isNotEmpty()) {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                tonalElevation = 1.dp,
+                            ) {
+                                FlowRow(
+                                    modifier = Modifier.padding(12.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    suggestions.forEach { tag ->
+                                        TagSuggestion(
+                                            tag = tag,
+                                            selected = tag in selectedTags,
+                                            onClick = { addTag(tag) },
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (selectedTags.isNotEmpty()) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                text = stringResource(R.string.selected_tags),
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                selectedTags.forEach { tag ->
+                                    InputChip(
+                                        selected = true,
+                                        onClick = { selectedTags = selectedTags - tag },
+                                        label = { Text(tag) },
+                                        trailingIcon = {
+                                            Icon(
+                                                modifier = Modifier.size(18.dp),
+                                                imageVector = Icons.Filled.Close,
+                                                contentDescription = stringResource(R.string.remove_tag, tag),
+                                            )
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PhotoStrip(
+    photos: List<String>,
+    onRemove: (String) -> Unit,
+    onAdd: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(112.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        LazyRow(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            items(
+                items = photos,
+                key = { it },
+            ) { photo ->
+                Box(
+                    modifier = Modifier
+                        .width(104.dp)
+                        .fillMaxHeight(),
+                ) {
+                    GemPreview(
+                        name = photo,
+                        modifier = Modifier.fillMaxSize(),
+                        shape = RoundedCornerShape(14.dp),
+                    )
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(4.dp),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surface,
+                    ) {
+                        IconButton(
+                            modifier = Modifier.size(32.dp),
+                            onClick = { onRemove(photo) },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = stringResource(R.string.remove_photo),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .width(92.dp)
+                .fillMaxHeight()
+                .dashedBorder(MaterialTheme.colorScheme.outline.copy(alpha = 0.55f))
+                .clickable(onClick = onAdd),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Surface(
+                    shape = CircleShape,
+                    color = Purple.copy(alpha = 0.12f),
+                ) {
+                    Icon(
+                        modifier = Modifier.padding(10.dp),
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = null,
+                        tint = Purple,
+                    )
+                }
+                Text(
+                    modifier = Modifier.padding(top = 6.dp),
+                    text = stringResource(R.string.add_photo),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
+    }
+}
+
+private fun Modifier.dashedBorder(color: Color): Modifier = drawBehind {
+    drawRoundRect(
+        color = color,
+        cornerRadius = androidx.compose.ui.geometry.CornerRadius(14.dp.toPx()),
+        style = Stroke(
+            width = 1.dp.toPx(),
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(9f, 7f)),
+        ),
+    )
+}
+
+@Composable
+private fun LabeledField(
+    label: String,
+    content: @Composable () -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(text = label, style = MaterialTheme.typography.titleMedium)
+        content()
+    }
+}
+
+@Composable
+private fun TagSuggestion(
+    tag: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.clickable(enabled = !selected, onClick = onClick),
+        shape = CircleShape,
+        color = if (selected) Purple.copy(alpha = 0.16f) else MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Text(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 9.dp),
+            text = tag,
+            color = if (selected) Purple else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+private val SuggestedTags = listOf("зелёный", "прозрачный", "драгоценный", "редкий")
+private val Purple = Color(0xFF7250B5)
+private val RatingStarColor = Color(0xFFFFB300)
+
+@Preview(showBackground = true, heightDp = 900)
+@Composable
+private fun AddGemScreenPreview() {
+    GemologistTheme {
+        AddGemScreen(
+            onBackClick = {},
+            onAddClick = { _, _, _ -> },
+        )
+    }
+}

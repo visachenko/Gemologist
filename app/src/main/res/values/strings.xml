@@ -1,6 +1,22 @@
 <resources>
     <string name="add_to_favorites">Добавить в избранное</string>
+    <string name="add">Добавить</string>
+    <string name="add_gem">Добавить камень</string>
+    <string name="add_gem_title">Новый камень</string>
+    <string name="add_photo">Добавить фото</string>
+    <string name="add_tag">Добавить тег</string>
     <string name="app_name">Gemologist</string>
     <string name="back">Назад</string>
+    <string name="clear">Очистить</string>
+    <string name="gem_name_hint">Изумруд природный</string>
+    <string name="name">Название</string>
+    <string name="new_gem_placeholder">Новый камень</string>
+    <string name="rating">Оценка</string>
+    <string name="rating_value">Оценка %1$d из 5</string>
+    <string name="remove_photo">Удалить фото</string>
+    <string name="remove_tag">Удалить тег %1$s</string>
     <string name="remove_from_favorites">Удалить из избранного</string>
+    <string name="tags">Теги</string>
+    <string name="tags_hint">Начните вводить тег</string>
+    <string name="selected_tags">Выбранные теги</string>
 </resources>
