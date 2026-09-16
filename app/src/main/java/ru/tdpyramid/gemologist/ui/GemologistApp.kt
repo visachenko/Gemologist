@@ -49,12 +49,13 @@ fun GemologistApp(modifier: Modifier = Modifier) {
         AddGemScreen(
             modifier = modifier,
             onBackClick = { isAddingItem = false },
-            onAddClick = { name, rating, tags ->
+            onAddClick = { name, rating, tags, comment ->
                 items = items + GemItemModel(
                     id = "custom-${nextCustomItemId++}",
                     name = name,
                     rating = rating,
                     tags = tags,
+                    comment = comment,
                 )
                 isAddingItem = false
             },

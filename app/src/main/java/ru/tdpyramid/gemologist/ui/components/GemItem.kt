@@ -40,6 +40,7 @@ data class GemItemModel(
     val name: String,
     val rating: Float,
     val tags: List<String>,
+    val comment: String = "",
 )
 
 @Composable

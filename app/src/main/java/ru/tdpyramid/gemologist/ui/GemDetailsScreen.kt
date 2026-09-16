@@ -91,6 +91,7 @@ fun GemDetailsScreen(
                     )
                 }
             }
+
         }
 
         Column(
@@ -134,6 +135,21 @@ fun GemDetailsScreen(
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }
+                }
+            }
+
+            if (item.comment.isNotBlank()) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(R.string.comment),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        text = item.comment,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
                 }
             }
         }

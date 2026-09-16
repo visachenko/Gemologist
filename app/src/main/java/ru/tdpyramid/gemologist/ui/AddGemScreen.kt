@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,6 +19,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -34,6 +37,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -43,10 +47,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -59,20 +65,24 @@ import ru.tdpyramid.gemologist.R
 import ru.tdpyramid.gemologist.ui.components.GemPreview
 import ru.tdpyramid.gemologist.ui.components.PreviewIconButton
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AddGemScreen(
     onBackClick: () -> Unit,
-    onAddClick: (name: String, rating: Float, tags: List<String>) -> Unit,
+    onAddClick: (name: String, rating: Float, tags: List<String>, comment: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var name by remember { mutableStateOf("") }
     var rating by remember { mutableIntStateOf(0) }
     var tagText by remember { mutableStateOf("") }
     var selectedTags by remember { mutableStateOf(emptyList<String>()) }
+    var comment by remember { mutableStateOf("") }
     var photoPlaceholders by remember { mutableStateOf(emptyList<String>()) }
     var nextPhotoId by remember { mutableIntStateOf(1) }
+    val tagsBringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
 
     fun addTag(tagValue: String = tagText) {
         val tag = tagValue.trim().lowercase()
@@ -83,6 +93,7 @@ fun AddGemScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.surface,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             Surface(
                 modifier = Modifier.navigationBarsPadding(),
@@ -94,7 +105,9 @@ fun AddGemScreen(
                         .padding(horizontal = 20.dp, vertical = 14.dp)
                         .height(56.dp),
                     enabled = name.isNotBlank() && rating > 0,
-                    onClick = { onAddClick(name.trim(), rating.toFloat(), selectedTags) },
+                    onClick = {
+                        onAddClick(name.trim(), rating.toFloat(), selectedTags, comment.trim())
+                    },
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Purple),
                 ) {
@@ -152,15 +165,13 @@ fun AddGemScreen(
                     modifier = Modifier.padding(horizontal = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(22.dp),
                 ) {
-                    LabeledField(label = stringResource(R.string.name)) {
-                        OutlinedTextField(
-                            modifier = Modifier.fillMaxWidth(),
-                            value = name,
-                            onValueChange = { name = it },
-                            singleLine = true,
-                            placeholder = { Text(stringResource(R.string.gem_name_hint)) },
-                        )
-                    }
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = name,
+                        onValueChange = { name = it },
+                        singleLine = true,
+                        label = { Text(stringResource(R.string.name)) },
+                    )
 
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(
@@ -187,9 +198,44 @@ fun AddGemScreen(
                         }
                     }
 
-                    LabeledField(label = stringResource(R.string.tags)) {
+                    LabeledField(
+                        label = stringResource(R.string.tags),
+                        labelModifier = Modifier.bringIntoViewRequester(tagsBringIntoViewRequester),
+                    ) {
+                        if (selectedTags.isNotEmpty()) {
+                            FlowRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                selectedTags.forEach { tag ->
+                                    InputChip(
+                                        selected = true,
+                                        onClick = { selectedTags = selectedTags - tag },
+                                        shape = CircleShape,
+                                        label = { Text(tag) },
+                                        trailingIcon = {
+                                            Icon(
+                                                modifier = Modifier.size(18.dp),
+                                                imageVector = Icons.Filled.Close,
+                                                contentDescription = stringResource(R.string.remove_tag, tag),
+                                            )
+                                        },
+                                    )
+                                }
+                            }
+                        }
+
                         OutlinedTextField(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onFocusChanged { focusState ->
+                                    if (focusState.isFocused) {
+                                        coroutineScope.launch {
+                                            tagsBringIntoViewRequester.bringIntoView()
+                                        }
+                                    }
+                                },
                             value = tagText,
                             onValueChange = { tagText = it },
                             singleLine = true,
@@ -208,58 +254,52 @@ fun AddGemScreen(
                             },
                         )
 
-                        val suggestions = SuggestedTags.filter {
-                            tagText.isBlank() || it.contains(tagText.trim(), ignoreCase = true)
+                        val query = tagText.trim()
+                        val suggestions = if (query.isEmpty()) {
+                            emptyList()
+                        } else {
+                            SuggestedTags.filter {
+                                it !in selectedTags && it.contains(query, ignoreCase = true)
+                            }
                         }
+
                         if (suggestions.isNotEmpty()) {
-                            Surface(
+                            FlowRow(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                                tonalElevation = 1.dp,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
-                                FlowRow(
-                                    modifier = Modifier.padding(12.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    suggestions.forEach { tag ->
-                                        TagSuggestion(
-                                            tag = tag,
-                                            selected = tag in selectedTags,
-                                            onClick = { addTag(tag) },
-                                        )
-                                    }
+                                suggestions.forEach { tag ->
+                                    TagSuggestion(
+                                        tag = tag,
+                                        selected = false,
+                                        onClick = { addTag(tag) },
+                                    )
                                 }
+                            }
+                        } else if (query.isNotEmpty() && query !in selectedTags) {
+                            OutlinedButton(onClick = { addTag(query) }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Add,
+                                    contentDescription = null,
+                                )
+                                Text(
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    text = stringResource(R.string.add_named_tag, query),
+                                )
                             }
                         }
                     }
 
-                    if (selectedTags.isNotEmpty()) {
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(
-                                text = stringResource(R.string.selected_tags),
-                                style = MaterialTheme.typography.titleMedium,
-                            )
-                            FlowRow(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                selectedTags.forEach { tag ->
-                                    InputChip(
-                                        selected = true,
-                                        onClick = { selectedTags = selectedTags - tag },
-                                        label = { Text(tag) },
-                                        trailingIcon = {
-                                            Icon(
-                                                modifier = Modifier.size(18.dp),
-                                                imageVector = Icons.Filled.Close,
-                                                contentDescription = stringResource(R.string.remove_tag, tag),
-                                            )
-                                        },
-                                    )
-                                }
-                            }
-                        }
+                    LabeledField(label = stringResource(R.string.comment)) {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = comment,
+                            onValueChange = { comment = it },
+                            minLines = 4,
+                            maxLines = 7,
+                            placeholder = { Text(stringResource(R.string.comment_hint)) },
+                        )
                     }
                 }
             }
@@ -391,10 +431,15 @@ private fun Modifier.dashedBorder(color: Color): Modifier = drawBehind {
 @Composable
 private fun LabeledField(
     label: String,
+    labelModifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(text = label, style = MaterialTheme.typography.titleMedium)
+        Text(
+            modifier = labelModifier,
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
+        )
         content()
     }
 }
@@ -432,7 +477,7 @@ private fun AddGemScreenPreview() {
     GemologistTheme {
         AddGemScreen(
             onBackClick = {},
-            onAddClick = { _, _, _ -> },
+            onAddClick = { _, _, _, _ -> },
         )
     }
 }
