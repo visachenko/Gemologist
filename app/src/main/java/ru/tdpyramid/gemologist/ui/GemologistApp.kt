@@ -1,7 +1,7 @@
 package ru.tdpyramid.gemologist.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -23,63 +23,80 @@ import androidx.compose.ui.unit.dp
 import ru.tdpyramid.gemologist.R
 import ru.tdpyramid.gemologist.ui.components.GemItem
 import ru.tdpyramid.gemologist.ui.components.GemItemModel
+import ru.tdpyramid.gemologist.ui.data.SampleGemItems
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun GemologistApp(modifier: Modifier = Modifier) {
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.app_name)) },
+    var selectedItemId by remember { mutableStateOf<String?>(null) }
+    var favoriteItemIds by remember { mutableStateOf(emptySet<String>()) }
+    val selectedItem = SampleGemItems.firstOrNull { it.id == selectedItemId }
+
+    BackHandler(enabled = selectedItem != null) {
+        selectedItemId = null
+    }
+
+    if (selectedItem == null) {
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.app_name)) },
+                )
+            },
+        ) { contentPadding ->
+            GemologistHome(
+                modifier = Modifier.padding(contentPadding),
+                favoriteItemIds = favoriteItemIds,
+                onItemClick = { selectedItemId = it.id },
+                onFavoriteClick = { item ->
+                    favoriteItemIds = favoriteItemIds.toggle(item.id)
+                },
             )
-        },
-    ) { contentPadding ->
-        GemologistHome(
-            modifier = Modifier.padding(contentPadding),
+        }
+    } else {
+        GemDetailsScreen(
+            modifier = modifier,
+            item = selectedItem,
+            isFavorite = selectedItem.id in favoriteItemIds,
+            onBackClick = { selectedItemId = null },
+            onFavoriteClick = {
+                favoriteItemIds = favoriteItemIds.toggle(selectedItem.id)
+            },
         )
     }
 }
 
 @Composable
-private fun GemologistHome(modifier: Modifier = Modifier) {
-    var favoriteItemIds by remember { mutableStateOf(emptySet<String>()) }
-
+private fun GemologistHome(
+    favoriteItemIds: Set<String>,
+    onItemClick: (GemItemModel) -> Unit,
+    onFavoriteClick: (GemItemModel) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
         columns = GridCells.Fixed(3),
         contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         items(
-            items = SampleItems,
+            items = SampleGemItems,
             key = { it.id },
         ) { item ->
             GemItem(
                 item = item,
                 isFavorite = item.id in favoriteItemIds,
-                onFavoriteClick = {
-                    favoriteItemIds = if (item.id in favoriteItemIds) {
-                        favoriteItemIds - item.id
-                    } else {
-                        favoriteItemIds + item.id
-                    }
-                },
+                onClick = { onItemClick(item) },
+                onFavoriteClick = { onFavoriteClick(item) },
             )
         }
     }
 }
 
-private val SampleItems = listOf(
-    GemItemModel("emerald", "Изумруд природный", 4.8f),
-    GemItemModel("sapphire", "Сапфир синий", 4.9f),
-    GemItemModel("ruby", "Рубин огранённый", 4.7f),
-    GemItemModel("amethyst", "Аметист уральский", 4.6f),
-    GemItemModel("topaz", "Топаз голубой", 4.8f),
-    GemItemModel("citrine", "Цитрин золотистый", 4.5f),
-)
+private fun Set<String>.toggle(id: String): Set<String> {
+    return if (id in this) this - id else this + id
+}
 
 @Preview(showBackground = true)
 @Composable

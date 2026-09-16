@@ -1,12 +1,14 @@
 package ru.tdpyramid.gemologist.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,33 +39,32 @@ data class GemItemModel(
     val id: String,
     val name: String,
     val rating: Float,
+    val tags: List<String>,
 )
 
 @Composable
 fun GemItem(
     item: GemItemModel,
     isFavorite: Boolean,
+    onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .clip(RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 10.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(18.dp))
-                .background(placeholderColor(item.name)),
+                .aspectRatio(1f),
         ) {
-            Icon(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(48.dp),
-                imageVector = Icons.Outlined.Diamond,
-                contentDescription = null,
-                tint = placeholderIconColor(item.name),
+            GemPreview(
+                name = item.name,
+                modifier = Modifier.fillMaxSize(),
             )
 
             IconButton(
@@ -108,6 +110,27 @@ fun GemItem(
     }
 }
 
+@Composable
+fun GemPreview(
+    name: String,
+    modifier: Modifier = Modifier,
+    shape: Shape = RoundedCornerShape(18.dp),
+) {
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .background(placeholderColor(name)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            modifier = Modifier.size(48.dp),
+            imageVector = Icons.Outlined.Diamond,
+            contentDescription = null,
+            tint = placeholderIconColor(name),
+        )
+    }
+}
+
 private val FavoriteColor = Color(0xFFE53935)
 private val FavoriteOutlineColor = Color(0xFF8E8E93)
 private val RatingStarColor = Color(0xFFFFB300)
@@ -142,8 +165,10 @@ private fun GemItemPreview() {
                 id = "emerald",
                 name = "Изумруд природный",
                 rating = 4.8f,
+                tags = listOf("Природный", "Зелёный"),
             ),
             isFavorite = false,
+            onClick = {},
             onFavoriteClick = {},
         )
     }
