@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Gemologist</string>
+    <string name="compose_ready_title">Compose подключён</string>
+    <string name="compose_ready_description">Основа приложения готова для первого рабочего экрана.</string>
 </resources>
