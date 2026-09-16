@@ -34,7 +34,6 @@ data class GemItemModel(
     val id: String,
     val name: String,
     val rating: Float,
-    val imagePlaceholderColor: Color,
 )
 
 @Composable
@@ -53,7 +52,7 @@ fun GemItem(
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(18.dp))
-                .background(item.imagePlaceholderColor),
+                .background(placeholderColor(item.name)),
         ) {
             IconButton(
                 modifier = Modifier
@@ -102,6 +101,15 @@ private val FavoriteColor = Color(0xFFE53935)
 private val FavoriteOutlineColor = Color(0xFF8E8E93)
 private val RatingStarColor = Color(0xFFFFB300)
 
+private fun placeholderColor(text: String): Color {
+    val hue = (text.hashCode() and Int.MAX_VALUE) % 360
+    return Color.hsl(
+        hue = hue.toFloat(),
+        saturation = 0.35f,
+        lightness = 0.82f,
+    )
+}
+
 @Preview(showBackground = true, widthDp = 180)
 @Composable
 private fun GemItemPreview() {
@@ -112,7 +120,6 @@ private fun GemItemPreview() {
                 id = "emerald",
                 name = "Изумруд природный",
                 rating = 4.8f,
-                imagePlaceholderColor = Color(0xFFC8E6C9),
             ),
             isFavorite = false,
             onFavoriteClick = {},

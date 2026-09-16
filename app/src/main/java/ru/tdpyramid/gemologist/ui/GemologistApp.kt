@@ -17,7 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -74,12 +73,12 @@ private fun GemologistHome(modifier: Modifier = Modifier) {
 }
 
 private val SampleItems = listOf(
-    GemItemModel("emerald", "Изумруд природный", 4.8f, Color(0xFFC8E6C9)),
-    GemItemModel("sapphire", "Сапфир синий", 4.9f, Color(0xFFCAD7F2)),
-    GemItemModel("ruby", "Рубин огранённый", 4.7f, Color(0xFFF2C8CE)),
-    GemItemModel("amethyst", "Аметист уральский", 4.6f, Color(0xFFDDD0EF)),
-    GemItemModel("topaz", "Топаз голубой", 4.8f, Color(0xFFC9E7EC)),
-    GemItemModel("citrine", "Цитрин золотистый", 4.5f, Color(0xFFF4E0B8)),
+    GemItemModel("emerald", "Изумруд природный", 4.8f),
+    GemItemModel("sapphire", "Сапфир синий", 4.9f),
+    GemItemModel("ruby", "Рубин огранённый", 4.7f),
+    GemItemModel("amethyst", "Аметист уральский", 4.6f),
+    GemItemModel("topaz", "Топаз голубой", 4.8f),
+    GemItemModel("citrine", "Цитрин золотистый", 4.5f),
 )
 
 @Preview(showBackground = true)
