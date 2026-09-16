@@ -1,5 +1,5 @@
 <resources>
+    <string name="add_to_favorites">Добавить в избранное</string>
     <string name="app_name">Gemologist</string>
-    <string name="compose_ready_title">Compose подключён</string>
-    <string name="compose_ready_description">Основа приложения готова для первого рабочего экрана.</string>
+    <string name="remove_from_favorites">Удалить из избранного</string>
 </resources>
