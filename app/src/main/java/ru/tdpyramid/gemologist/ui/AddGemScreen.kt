@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,10 +14,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -72,7 +71,7 @@ fun AddGemScreen(
     var rating by remember { mutableIntStateOf(0) }
     var tagText by remember { mutableStateOf("") }
     var selectedTags by remember { mutableStateOf(emptyList<String>()) }
-    var photoPlaceholders by remember { mutableStateOf(listOf("emerald-photo", "amethyst-photo")) }
+    var photoPlaceholders by remember { mutableStateOf(emptyList<String>()) }
     var nextPhotoId by remember { mutableIntStateOf(1) }
 
     fun addTag(tagValue: String = tagText) {
@@ -114,15 +113,16 @@ fun AddGemScreen(
             verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
             item {
-                Row(
+                Box(
                     modifier = Modifier
-                        .statusBarsPadding()
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(18.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                        .statusBarsPadding()
+                        .height(72.dp),
                 ) {
                     PreviewIconButton(
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(start = 20.dp),
                         onClick = onBackClick,
                         contentDescription = stringResource(R.string.back),
                     ) {
@@ -131,21 +131,18 @@ fun AddGemScreen(
                             contentDescription = null,
                         )
                     }
-                    Text(
-                        text = stringResource(R.string.add_gem_title),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Medium,
-                    )
                 }
             }
 
             item {
-                PhotoStrip(
+                PhotoGrid(
                     modifier = Modifier.padding(horizontal = 20.dp),
                     photos = photoPlaceholders,
                     onRemove = { photoPlaceholders = photoPlaceholders - it },
                     onAdd = {
-                        photoPlaceholders = photoPlaceholders + "custom-photo-${nextPhotoId++}"
+                        if (photoPlaceholders.size < MaxPhotoCount) {
+                            photoPlaceholders = photoPlaceholders + "custom-photo-${nextPhotoId++}"
+                        }
                     },
                 )
             }
@@ -170,11 +167,17 @@ fun AddGemScreen(
                             text = stringResource(R.string.rating),
                             style = MaterialTheme.typography.titleMedium,
                         )
-                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(
+                                space = 4.dp,
+                                alignment = Alignment.CenterHorizontally,
+                            ),
+                        ) {
                             (1..5).forEach { value ->
                                 IconButton(onClick = { rating = value }) {
                                     Icon(
-                                        modifier = Modifier.size(38.dp),
+                                        modifier = Modifier.size(46.dp),
                                         imageVector = if (value <= rating) Icons.Filled.Star else Icons.Outlined.StarBorder,
                                         contentDescription = stringResource(R.string.rating_value, value),
                                         tint = if (value <= rating) RatingStarColor else MaterialTheme.colorScheme.outline,
@@ -265,23 +268,33 @@ fun AddGemScreen(
 }
 
 @Composable
-private fun PhotoStrip(
+private fun PhotoGrid(
     photos: List<String>,
     onRemove: (String) -> Unit,
     onAdd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(112.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        LazyRow(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight(),
+    if (photos.isEmpty()) {
+        AddPhotoCell(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(112.dp),
+            onClick = onAdd,
+        )
+    } else {
+        val canAddPhoto = photos.size < MaxPhotoCount
+        val itemCount = photos.size + if (canAddPhoto) 1 else 0
+        val rowCount = (itemCount + PhotoColumnCount - 1) / PhotoColumnCount
+        val gridHeight = PhotoCellHeight * rowCount + PhotoGridSpacing * (rowCount - 1)
+
+        LazyVerticalGrid(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(gridHeight),
+            columns = GridCells.Fixed(PhotoColumnCount),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            userScrollEnabled = false,
         ) {
             items(
                 items = photos,
@@ -289,8 +302,8 @@ private fun PhotoStrip(
             ) { photo ->
                 Box(
                     modifier = Modifier
-                        .width(104.dp)
-                        .fillMaxHeight(),
+                        .fillMaxWidth()
+                        .height(PhotoCellHeight),
                 ) {
                     GemPreview(
                         name = photo,
@@ -316,35 +329,50 @@ private fun PhotoStrip(
                     }
                 }
             }
-        }
 
-        Box(
-            modifier = Modifier
-                .width(92.dp)
-                .fillMaxHeight()
-                .dashedBorder(MaterialTheme.colorScheme.outline.copy(alpha = 0.55f))
-                .clickable(onClick = onAdd),
-            contentAlignment = Alignment.Center,
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Surface(
-                    shape = CircleShape,
-                    color = Purple.copy(alpha = 0.12f),
-                ) {
-                    Icon(
-                        modifier = Modifier.padding(10.dp),
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = null,
-                        tint = Purple,
+            if (canAddPhoto) {
+                item(key = "add-photo") {
+                    AddPhotoCell(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(PhotoCellHeight),
+                        onClick = onAdd,
                     )
                 }
-                Text(
-                    modifier = Modifier.padding(top = 6.dp),
-                    text = stringResource(R.string.add_photo),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall,
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddPhotoCell(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .dashedBorder(MaterialTheme.colorScheme.outline.copy(alpha = 0.55f))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Surface(
+                shape = CircleShape,
+                color = Purple.copy(alpha = 0.12f),
+            ) {
+                Icon(
+                    modifier = Modifier.padding(10.dp),
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = null,
+                    tint = Purple,
                 )
             }
+            Text(
+                modifier = Modifier.padding(top = 6.dp),
+                text = stringResource(R.string.add_photo),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall,
+            )
         }
     }
 }
@@ -393,6 +421,10 @@ private fun TagSuggestion(
 private val SuggestedTags = listOf("зелёный", "прозрачный", "драгоценный", "редкий")
 private val Purple = Color(0xFF7250B5)
 private val RatingStarColor = Color(0xFFFFB300)
+private const val PhotoColumnCount = 3
+private const val MaxPhotoCount = 6
+private val PhotoCellHeight = 112.dp
+private val PhotoGridSpacing = 8.dp
 
 @Preview(showBackground = true, heightDp = 900)
 @Composable
