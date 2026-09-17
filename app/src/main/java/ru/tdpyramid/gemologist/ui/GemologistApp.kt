@@ -8,9 +8,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -25,39 +25,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.tdpyramid.gemologist.R
 import ru.tdpyramid.gemologist.ui.components.GemItem
-import ru.tdpyramid.gemologist.domain.Gem
+import ru.tdpyramid.gemologist.ui.components.GemItemModel
 import ru.tdpyramid.gemologist.ui.data.SampleGemItems
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun GemologistApp(
-    viewModel: GemologistViewModel,
-    modifier: Modifier = Modifier,
-) {
-    val items by viewModel.gems.collectAsStateWithLifecycle()
-
-    GemologistContent(
-        items = items,
-        onAddItem = viewModel::addGem,
-        onToggleFavorite = { viewModel.toggleFavorite(it.id) },
-        modifier = modifier,
-    )
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun GemologistContent(
-    items: List<Gem>,
-    onAddItem: (String, Float, List<String>, String) -> Unit,
-    onToggleFavorite: (Gem) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    var selectedItemId by remember { mutableStateOf<Long?>(null) }
+fun GemologistApp(modifier: Modifier = Modifier) {
+    var items by remember { mutableStateOf(SampleGemItems) }
+    var selectedItemId by remember { mutableStateOf<String?>(null) }
     var isAddingItem by remember { mutableStateOf(false) }
+    var favoriteItemIds by remember { mutableStateOf(emptySet<String>()) }
+    var nextCustomItemId by remember { mutableStateOf(1) }
     val selectedItem = items.firstOrNull { it.id == selectedItemId }
 
     BackHandler(enabled = isAddingItem || selectedItem != null) {
@@ -69,7 +50,13 @@ private fun GemologistContent(
             modifier = modifier,
             onBackClick = { isAddingItem = false },
             onAddClick = { name, rating, tags, comment ->
-                onAddItem(name, rating, tags, comment)
+                items = items + GemItemModel(
+                    id = "custom-${nextCustomItemId++}",
+                    name = name,
+                    rating = rating,
+                    tags = tags,
+                    comment = comment,
+                )
                 isAddingItem = false
             },
         )
@@ -96,25 +83,32 @@ private fun GemologistContent(
             GemologistHome(
                 modifier = Modifier.padding(contentPadding),
                 items = items,
+                favoriteItemIds = favoriteItemIds,
                 onItemClick = { selectedItemId = it.id },
-                onFavoriteClick = onToggleFavorite,
+                onFavoriteClick = { item ->
+                    favoriteItemIds = favoriteItemIds.toggle(item.id)
+                },
             )
         }
     } else {
         GemDetailsScreen(
             modifier = modifier,
             item = selectedItem,
+            isFavorite = selectedItem.id in favoriteItemIds,
             onBackClick = { selectedItemId = null },
-            onFavoriteClick = { onToggleFavorite(selectedItem) },
+            onFavoriteClick = {
+                favoriteItemIds = favoriteItemIds.toggle(selectedItem.id)
+            },
         )
     }
 }
 
 @Composable
 private fun GemologistHome(
-    items: List<Gem>,
-    onItemClick: (Gem) -> Unit,
-    onFavoriteClick: (Gem) -> Unit,
+    items: List<GemItemModel>,
+    favoriteItemIds: Set<String>,
+    onItemClick: (GemItemModel) -> Unit,
+    onFavoriteClick: (GemItemModel) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyVerticalGrid(
@@ -128,6 +122,7 @@ private fun GemologistHome(
         ) { item ->
             GemItem(
                 item = item,
+                isFavorite = item.id in favoriteItemIds,
                 onClick = { onItemClick(item) },
                 onFavoriteClick = { onFavoriteClick(item) },
             )
@@ -135,14 +130,14 @@ private fun GemologistHome(
     }
 }
 
+private fun Set<String>.toggle(id: String): Set<String> {
+    return if (id in this) this - id else this + id
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun GemologistAppPreview() {
     GemologistTheme {
-        GemologistContent(
-            items = SampleGemItems,
-            onAddItem = { _, _, _, _ -> },
-            onToggleFavorite = {},
-        )
+        GemologistApp()
     }
 }

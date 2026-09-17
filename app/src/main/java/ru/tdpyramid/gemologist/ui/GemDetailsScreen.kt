@@ -32,14 +32,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.tdpyramid.gemologist.R
-import ru.tdpyramid.gemologist.domain.Gem
+import ru.tdpyramid.gemologist.ui.components.GemItemModel
 import ru.tdpyramid.gemologist.ui.components.GemPreview
 import ru.tdpyramid.gemologist.ui.components.PreviewIconButton
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
 
 @Composable
 fun GemDetailsScreen(
-    item: Gem,
+    item: GemItemModel,
+    isFavorite: Boolean,
     onBackClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -80,17 +81,16 @@ fun GemDetailsScreen(
                 PreviewIconButton(
                     onClick = onFavoriteClick,
                     contentDescription = stringResource(
-                        if (item.isFavorite) R.string.remove_from_favorites else R.string.add_to_favorites,
+                        if (isFavorite) R.string.remove_from_favorites else R.string.add_to_favorites,
                     ),
                 ) {
                     Icon(
-                        imageVector = if (item.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = null,
-                        tint = if (item.isFavorite) FavoriteColor else MaterialTheme.colorScheme.onSurface,
+                        tint = if (isFavorite) FavoriteColor else MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
-
         }
 
         Column(
@@ -163,12 +163,13 @@ private val RatingStarColor = Color(0xFFFFB300)
 private fun GemDetailsScreenPreview() {
     GemologistTheme {
         GemDetailsScreen(
-            item = Gem(
-                id = 1,
+            item = GemItemModel(
+                id = "emerald",
                 name = "Изумруд природный",
                 rating = 4.8f,
                 tags = listOf("Природный", "Зелёный", "Изумруд"),
             ),
+            isFavorite = false,
             onBackClick = {},
             onFavoriteClick = {},
         )
