@@ -29,6 +29,7 @@ fun GemListScreen(
     gems: List<Gem>,
     onItemClick: (Gem) -> Unit,
     onFavoriteClick: (Long) -> Unit,
+    onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -40,7 +41,7 @@ fun GemListScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {  },
+                onClick = onAddClick,
                 shape = CircleShape,
             ) {
                 Icon(

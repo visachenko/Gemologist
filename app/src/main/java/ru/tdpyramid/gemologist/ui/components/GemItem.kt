@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import ru.tdpyramid.gemologist.R
 import ru.tdpyramid.gemologist.data.Gem
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
+import java.util.Locale
 
 @Composable
 fun GemItem(
@@ -95,7 +96,7 @@ fun GemItem(
                 tint = RatingStarColor,
             )
             Text(
-                text = 4.4f.toString(),
+                text = String.format(Locale.getDefault(), "%.1f", item.rating),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -157,6 +158,7 @@ private fun GemItemPreview() {
             item = Gem(
                 id = 0,
                 name = "Изумруд",
+                rating = 4f,
                 isFavorite = true
             ),
             onClick = {},

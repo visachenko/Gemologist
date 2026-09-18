@@ -12,8 +12,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import ru.tdpyramid.gemologist.service.GemService
+import ru.tdpyramid.gemologist.ui.route.AddGemRoute
 import ru.tdpyramid.gemologist.ui.route.GemDetailsRoute
 import ru.tdpyramid.gemologist.ui.route.HomeRoute
+import ru.tdpyramid.gemologist.viewModel.AddGemViewModel
 import ru.tdpyramid.gemologist.viewModel.GemDetailsViewModel
 import ru.tdpyramid.gemologist.viewModel.GemListViewModel
 
@@ -46,9 +48,10 @@ fun GemologistApp(
                 onItemClick = {
                     navController.navigate(GemDetailsRoute(it.id))
                 },
-                {
+                onFavoriteClick = {
                     gemListViewModel.onFavoriteClick(it)
-                }
+                },
+                onAddClick = { navController.navigate(AddGemRoute) },
             )
         }
         composable<GemDetailsRoute> { backStackEntry ->
@@ -74,6 +77,32 @@ fun GemologistApp(
                 {
                     gemDetailsViewModel.setFavorite()
                 }
+            )
+        }
+        composable<AddGemRoute> { backStackEntry ->
+            val addGemViewModel: AddGemViewModel = viewModel(
+                viewModelStoreOwner = backStackEntry,
+                key = "add-gem",
+                factory = viewModelFactory {
+                    initializer {
+                        AddGemViewModel(
+                            gemService = gemService
+                        )
+                    }
+                }
+            )
+            AddGemScreen(
+                state = addGemViewModel.uiState,
+                onNameChange = addGemViewModel::onNameChange,
+                onRatingChange = addGemViewModel::onRatingChange,
+                onCommentChange = addGemViewModel::onCommentChange,
+                onFavoriteClick = addGemViewModel::onFavoriteClick,
+                onBackClick = { navController.navigateUp() },
+                onAddClick = {
+                    addGemViewModel.addGem {
+                        navController.navigateUp()
+                    }
+                },
             )
         }
     }

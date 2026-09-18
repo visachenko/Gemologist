@@ -36,6 +36,7 @@ import ru.tdpyramid.gemologist.data.Gem
 import ru.tdpyramid.gemologist.ui.components.GemPreview
 import ru.tdpyramid.gemologist.ui.components.PreviewIconButton
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
+import java.util.Locale
 
 @Composable
 fun GemDetailsScreen(
@@ -112,7 +113,9 @@ fun GemDetailsScreen(
                     tint = RatingStarColor,
                 )
                 Text(
-                    text = 4.4f.toString(),
+                    text = gem?.let {
+                        String.format(Locale.getDefault(), "%.1f", it.rating)
+                    }.orEmpty(),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -165,6 +168,7 @@ private fun GemDetailsScreenPreview() {
             gem = Gem(
                 id = 0,
                 name = "Изумруд природный",
+                rating = 4f,
                 isFavorite = true
             ),
             onBackClick = {},

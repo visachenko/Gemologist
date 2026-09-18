@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ru.tdpyramid.gemologist.data.Gem
 import ru.tdpyramid.gemologist.repository.GemDao
+import ru.tdpyramid.gemologist.repository.GemEntity
 
 class GemService(
     private val gemDao: GemDao
@@ -14,7 +15,8 @@ class GemService(
                 Gem(
                     id = entity.id,
                     name = entity.name,
-                    isFavorite =  entity.isFavorite
+                    rating = entity.rating,
+                    isFavorite = entity.isFavorite,
                 )
             }
         }
@@ -29,8 +31,25 @@ class GemService(
             Gem(
                 id = entity.id,
                 name = entity.name,
-                isFavorite = entity.isFavorite
+                rating = entity.rating,
+                isFavorite = entity.isFavorite,
             )
         }
+    }
+
+    suspend fun addGem(
+        name: String,
+        rating: Float,
+        comment: String,
+        isFavorite: Boolean,
+    ) {
+        gemDao.insert(
+            GemEntity(
+                name = name,
+                rating = rating,
+                comment = comment,
+                isFavorite = isFavorite,
+            )
+        )
     }
 }
