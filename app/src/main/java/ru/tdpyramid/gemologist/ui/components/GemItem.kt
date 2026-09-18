@@ -159,6 +159,7 @@ private fun GemItemPreview() {
                 id = 0,
                 name = "Изумруд",
                 rating = 4f,
+                comment = "",
                 isFavorite = true
             ),
             onClick = {},

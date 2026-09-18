@@ -24,6 +24,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -89,20 +90,26 @@ fun AddGemScreen(
             )
         },
         bottomBar = {
-            Button(
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 14.dp),
-                enabled = state.name.isNotBlank(),
-                onClick = onAddClick,
-                shape = CircleShape,
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shadowElevation = 16.dp,
             ) {
-                Text(
-                    text = stringResource(R.string.add),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
+                Button(
+                    modifier = Modifier
+                        .navigationBarsPadding()
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 14.dp),
+                    enabled = state.name.isNotBlank(),
+                    onClick = onAddClick,
+                    shape = CircleShape,
+                ) {
+                    Text(
+                        text = stringResource(R.string.add),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
             }
         },
     ) { contentPadding ->

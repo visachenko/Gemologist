@@ -16,6 +16,7 @@ class GemService(
                     id = entity.id,
                     name = entity.name,
                     rating = entity.rating,
+                    comment = entity.comment,
                     isFavorite = entity.isFavorite,
                 )
             }
@@ -32,6 +33,7 @@ class GemService(
                 id = entity.id,
                 name = entity.name,
                 rating = entity.rating,
+                comment = entity.comment,
                 isFavorite = entity.isFavorite,
             )
         }

@@ -139,7 +139,7 @@ fun GemDetailsScreen(
                 }
             }
 
-            if (false) {
+            if (!gem?.comment.isNullOrBlank()) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
                         text = stringResource(R.string.comment),
@@ -147,7 +147,7 @@ fun GemDetailsScreen(
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
-                        text = "Comment",
+                        text = gem.comment,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodyLarge,
                     )
@@ -169,6 +169,7 @@ private fun GemDetailsScreenPreview() {
                 id = 0,
                 name = "Изумруд природный",
                 rating = 4f,
+                comment = "Насыщенный зелёный цвет, без заметных включений.",
                 isFavorite = true
             ),
             onBackClick = {},
