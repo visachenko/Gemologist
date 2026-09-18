@@ -61,17 +61,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import ru.tdpyramid.gemologist.R
+import ru.tdpyramid.gemologist.data.Gem
 import ru.tdpyramid.gemologist.ui.components.GemPreview
 import ru.tdpyramid.gemologist.ui.components.PreviewIconButton
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AddGemScreen(
     onBackClick: () -> Unit,
-    onAddClick: (name: String, rating: Float, tags: List<String>, comment: String) -> Unit,
+    onAddClick: (Gem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var name by remember { mutableStateOf("") }
@@ -106,7 +107,13 @@ fun AddGemScreen(
                         .height(56.dp),
                     enabled = name.isNotBlank() && rating > 0,
                     onClick = {
-                        onAddClick(name.trim(), rating.toFloat(), selectedTags, comment.trim())
+                        onAddClick(
+                            Gem(
+                                id = -1,
+                                name = name.trim(),
+                                isFavorite = false
+                            )
+                        )
                     },
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Purple),
@@ -477,7 +484,7 @@ private fun AddGemScreenPreview() {
     GemologistTheme {
         AddGemScreen(
             onBackClick = {},
-            onAddClick = { _, _, _, _ -> },
+            onAddClick = { gemItemModel -> },
         )
     }
 }

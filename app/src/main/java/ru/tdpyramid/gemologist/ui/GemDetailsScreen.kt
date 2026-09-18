@@ -32,15 +32,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.tdpyramid.gemologist.R
-import ru.tdpyramid.gemologist.ui.components.GemItemModel
+import ru.tdpyramid.gemologist.data.Gem
 import ru.tdpyramid.gemologist.ui.components.GemPreview
 import ru.tdpyramid.gemologist.ui.components.PreviewIconButton
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
 
 @Composable
 fun GemDetailsScreen(
-    item: GemItemModel,
-    isFavorite: Boolean,
+    gem: Gem?,
     onBackClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -56,7 +55,7 @@ fun GemDetailsScreen(
                 .aspectRatio(1f),
         ) {
             GemPreview(
-                name = item.name,
+                name = gem?.name ?: "",
                 modifier = Modifier.fillMaxSize(),
                 shape = RoundedCornerShape(0.dp),
             )
@@ -81,13 +80,13 @@ fun GemDetailsScreen(
                 PreviewIconButton(
                     onClick = onFavoriteClick,
                     contentDescription = stringResource(
-                        if (isFavorite) R.string.remove_from_favorites else R.string.add_to_favorites,
+                        if (gem?.isFavorite ?: false) R.string.remove_from_favorites else R.string.add_to_favorites,
                     ),
                 ) {
                     Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        imageVector = if (gem?.isFavorite ?: false) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = null,
-                        tint = if (isFavorite) FavoriteColor else MaterialTheme.colorScheme.onSurface,
+                        tint = if (gem?.isFavorite ?: false) FavoriteColor else MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -98,7 +97,7 @@ fun GemDetailsScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             Text(
-                text = item.name,
+                text = gem?.name ?: "",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
             )
@@ -113,7 +112,7 @@ fun GemDetailsScreen(
                     tint = RatingStarColor,
                 )
                 Text(
-                    text = item.rating.toString(),
+                    text = 4.4f.toString(),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -123,7 +122,7 @@ fun GemDetailsScreen(
                 modifier = Modifier.horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                item.tags.forEach { tag ->
+                emptyList<String>().forEach { tag ->
                     Surface(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = CircleShape,
@@ -137,7 +136,7 @@ fun GemDetailsScreen(
                 }
             }
 
-            if (item.comment.isNotBlank()) {
+            if (false) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
                         text = stringResource(R.string.comment),
@@ -145,7 +144,7 @@ fun GemDetailsScreen(
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
-                        text = item.comment,
+                        text = "Comment",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodyLarge,
                     )
@@ -163,13 +162,11 @@ private val RatingStarColor = Color(0xFFFFB300)
 private fun GemDetailsScreenPreview() {
     GemologistTheme {
         GemDetailsScreen(
-            item = GemItemModel(
-                id = "emerald",
+            gem = Gem(
+                id = 0,
                 name = "Изумруд природный",
-                rating = 4.8f,
-                tags = listOf("Природный", "Зелёный", "Изумруд"),
+                isFavorite = true
             ),
-            isFavorite = false,
             onBackClick = {},
             onFavoriteClick = {},
         )

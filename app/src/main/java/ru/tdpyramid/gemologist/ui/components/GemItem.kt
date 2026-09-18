@@ -33,24 +33,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.tdpyramid.gemologist.R
+import ru.tdpyramid.gemologist.data.Gem
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
-
-data class GemItemModel(
-    val id: String,
-    val name: String,
-    val rating: Float,
-    val tags: List<String>,
-    val comment: String = "",
-)
 
 @Composable
 fun GemItem(
-    item: GemItemModel,
-    isFavorite: Boolean,
+    item: Gem,
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isFavorite = item.isFavorite
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(18.dp))
@@ -87,7 +80,6 @@ fun GemItem(
         Text(
             text = item.name,
             maxLines = 2,
-            minLines = 2,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
@@ -103,7 +95,7 @@ fun GemItem(
                 tint = RatingStarColor,
             )
             Text(
-                text = item.rating.toString(),
+                text = 4.4f.toString(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -162,13 +154,11 @@ private fun GemItemPreview() {
     GemologistTheme {
         GemItem(
             modifier = Modifier.padding(16.dp),
-            item = GemItemModel(
-                id = "emerald",
-                name = "Изумруд природный",
-                rating = 4.8f,
-                tags = listOf("Природный", "Зелёный"),
+            item = Gem(
+                id = 0,
+                name = "Изумруд",
+                isFavorite = true
             ),
-            isFavorite = false,
             onClick = {},
             onFavoriteClick = {},
         )
