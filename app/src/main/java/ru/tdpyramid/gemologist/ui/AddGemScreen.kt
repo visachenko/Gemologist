@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.tdpyramid.gemologist.R
+import ru.tdpyramid.gemologist.ui.components.PhotoGrid
 import ru.tdpyramid.gemologist.ui.state.AddGemState
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
 
@@ -121,6 +122,12 @@ fun AddGemScreen(
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
+            PhotoGrid(
+                photos = emptyList(),
+                onRemove = {},
+                onAdd = {},
+            )
+
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = state.name,
