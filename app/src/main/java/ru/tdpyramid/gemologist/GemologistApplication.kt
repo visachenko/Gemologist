@@ -2,40 +2,20 @@ package ru.tdpyramid.gemologist
 
 import android.app.Application
 import androidx.room.Room
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import ru.tdpyramid.gemologist.repository.GemDatabase
-import ru.tdpyramid.gemologist.repository.GemEntity
 import ru.tdpyramid.gemologist.service.PhotoService
-import kotlin.random.Random
 
 class GemologistApplication : Application() {
     val photoService: PhotoService by lazy { PhotoService(this) }
 
-    override fun onCreate() {
-        super.onCreate()
-        photoService.clearAllPhotos()
+    val database: GemDatabase by lazy {
+        Room.databaseBuilder<GemDatabase>(
+            context = this,
+            name = DATABASE_NAME,
+        ).build()
     }
 
-    val database: GemDatabase by lazy {
-        val scope = CoroutineScope(Dispatchers.IO)
-        Room.inMemoryDatabaseBuilder<GemDatabase>(this)
-            .build().apply {
-                scope.launch {
-                    gemDao().apply {
-                        insert(GemEntity(name ="Test", rating = Random.nextFloat() * 5f))
-                        insert(GemEntity(name ="Test", rating = Random.nextFloat() * 5f))
-                        insert(GemEntity(name ="Test", rating = Random.nextFloat() * 5f))
-                        insert(GemEntity(name ="Test1", rating = Random.nextFloat() * 5f))
-                        insert(GemEntity(name ="Test1", rating = Random.nextFloat() * 5f))
-                        insert(GemEntity(name ="Test1", rating = Random.nextFloat() * 5f))
-                        insert(GemEntity(name ="Test1", rating = Random.nextFloat() * 5f))
-                        insert(GemEntity(name ="Test1", rating = Random.nextFloat() * 5f))
-                        insert(GemEntity(name ="Test1", rating = Random.nextFloat() * 5f))
-                        insert(GemEntity(name ="Test1", rating = Random.nextFloat() * 5f))
-                    }
-                }
-            }
+    private companion object {
+        const val DATABASE_NAME = "gemologist.db"
     }
 }

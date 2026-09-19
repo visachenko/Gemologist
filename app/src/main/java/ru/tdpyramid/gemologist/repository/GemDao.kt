@@ -36,9 +36,6 @@ interface GemDao {
         )
     }
 
-    @Query("SELECT fileName FROM GemPhotoEntity")
-    suspend fun getAllPhotoFileNames(): List<String>
-
     @Query("UPDATE gementity SET isFavorite = NOT isFavorite WHERE id = :id")
     suspend fun setFavorite(id: Long)
 }

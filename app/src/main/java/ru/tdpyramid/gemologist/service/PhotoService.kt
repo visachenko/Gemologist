@@ -11,11 +11,6 @@ import java.util.UUID
 class PhotoService(
     private val context: Context,
 ) {
-    fun clearAllPhotos() {
-        File(context.cacheDir, CROP_DIRECTORY).deleteRecursively()
-        File(context.filesDir, PHOTO_DIRECTORY).deleteRecursively()
-    }
-
     fun createCropDestination(): Uri {
         val directory = File(context.cacheDir, CROP_DIRECTORY).apply(File::mkdirs)
         val file = File(directory, "${UUID.randomUUID()}.jpg")
@@ -52,22 +47,6 @@ class PhotoService(
         return File(File(context.filesDir, PHOTO_DIRECTORY), fileName).toContentUri()
     }
 
-    suspend fun cleanupFiles(referencedFileNames: Set<String>) = withContext(Dispatchers.IO) {
-        val staleBefore = System.currentTimeMillis() - STALE_FILE_AGE_MS
-
-        File(context.cacheDir, CROP_DIRECTORY)
-            .listFiles()
-            .orEmpty()
-            .filter { it.lastModified() < staleBefore }
-            .forEach(File::delete)
-
-        File(context.filesDir, PHOTO_DIRECTORY)
-            .listFiles()
-            .orEmpty()
-            .filter { it.name !in referencedFileNames && it.lastModified() < staleBefore }
-            .forEach(File::delete)
-    }
-
     private fun Uri.fileIn(root: File, directory: String): File {
         val fileName = requireNotNull(lastPathSegment).substringAfterLast('/')
         require(fileName.matches(FILE_NAME_PATTERN)) { "Invalid photo URI: $this" }
@@ -83,7 +62,6 @@ class PhotoService(
     private companion object {
         const val CROP_DIRECTORY = "photo_crop"
         const val PHOTO_DIRECTORY = "photos"
-        const val STALE_FILE_AGE_MS = 24 * 60 * 60 * 1000L
         val FILE_NAME_PATTERN = Regex("[0-9a-f-]+\\.jpg")
     }
 }
