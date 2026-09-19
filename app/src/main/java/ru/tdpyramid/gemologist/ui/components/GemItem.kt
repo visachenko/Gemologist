@@ -1,6 +1,5 @@
 package ru.tdpyramid.gemologist.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Diamond
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,7 +55,7 @@ fun GemItem(
                 .aspectRatio(1f),
         ) {
             GemPreview(
-                name = item.name,
+                color = gemPreviewColor(item.name),
                 modifier = Modifier.fillMaxSize(),
             )
 
@@ -104,50 +101,9 @@ fun GemItem(
     }
 }
 
-@Composable
-fun GemPreview(
-    name: String,
-    modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(18.dp),
-) {
-    Box(
-        modifier = modifier
-            .clip(shape)
-            .background(placeholderColor(name)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            modifier = Modifier.size(48.dp),
-            imageVector = Icons.Outlined.Diamond,
-            contentDescription = null,
-            tint = placeholderIconColor(name),
-        )
-    }
-}
-
 private val FavoriteColor = Color(0xFFE53935)
 private val FavoriteOutlineColor = Color(0xFF8E8E93)
 private val RatingStarColor = Color(0xFFFFB300)
-
-private fun placeholderColor(text: String): Color {
-    return Color.hsl(
-        hue = placeholderHue(text),
-        saturation = 0.35f,
-        lightness = 0.82f,
-    )
-}
-
-private fun placeholderIconColor(text: String): Color {
-    return Color.hsl(
-        hue = placeholderHue(text),
-        saturation = 0.42f,
-        lightness = 0.38f,
-    )
-}
-
-private fun placeholderHue(text: String): Float {
-    return ((text.hashCode() and Int.MAX_VALUE) % 360).toFloat()
-}
 
 @Preview(showBackground = true, widthDp = 180)
 @Composable

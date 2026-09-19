@@ -35,6 +35,7 @@ import ru.tdpyramid.gemologist.R
 import ru.tdpyramid.gemologist.data.Gem
 import ru.tdpyramid.gemologist.ui.components.GemPreview
 import ru.tdpyramid.gemologist.ui.components.PreviewIconButton
+import ru.tdpyramid.gemologist.ui.components.gemPreviewColor
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
 import java.util.Locale
 
@@ -56,7 +57,7 @@ fun GemDetailsScreen(
                 .aspectRatio(1f),
         ) {
             GemPreview(
-                name = gem?.name ?: "",
+                color = gemPreviewColor(gem?.name.orEmpty()),
                 modifier = Modifier.fillMaxSize(),
                 shape = RoundedCornerShape(0.dp),
             )

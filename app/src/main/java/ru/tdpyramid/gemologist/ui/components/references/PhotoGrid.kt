@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ru.tdpyramid.gemologist.R
 import ru.tdpyramid.gemologist.ui.components.GemPreview
+import ru.tdpyramid.gemologist.ui.components.gemPreviewColor
 
 @Composable
 fun PhotoGrid(
@@ -70,7 +71,7 @@ fun PhotoGrid(
                         .height(cellHeight),
                 ) {
                     GemPreview(
-                        name = photo,
+                        color = gemPreviewColor(photo),
                         modifier = Modifier.fillMaxSize(),
                         shape = RoundedCornerShape(14.dp),
                     )

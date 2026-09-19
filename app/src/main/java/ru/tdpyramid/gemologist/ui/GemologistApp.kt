@@ -97,6 +97,8 @@ fun GemologistApp(
                 onRatingChange = addGemViewModel::onRatingChange,
                 onCommentChange = addGemViewModel::onCommentChange,
                 onFavoriteClick = addGemViewModel::onFavoriteClick,
+                onPhotosSelected = addGemViewModel::onPhotosSelected,
+                onPhotoRemove = addGemViewModel::onPhotoRemove,
                 onBackClick = { navController.navigateUp() },
                 onAddClick = {
                     addGemViewModel.addGem {

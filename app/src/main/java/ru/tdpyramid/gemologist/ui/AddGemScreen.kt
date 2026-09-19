@@ -1,5 +1,9 @@
 package ru.tdpyramid.gemologist.ui
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import ru.tdpyramid.gemologist.R
 import ru.tdpyramid.gemologist.ui.components.PhotoGrid
 import ru.tdpyramid.gemologist.ui.state.AddGemState
+import ru.tdpyramid.gemologist.ui.state.MAX_GEM_PHOTO_COUNT
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,10 +54,17 @@ fun AddGemScreen(
     onRatingChange: (Float) -> Unit,
     onCommentChange: (String) -> Unit,
     onFavoriteClick: () -> Unit,
+    onPhotosSelected: (List<Uri>) -> Unit,
+    onPhotoRemove: (Uri) -> Unit,
     onBackClick: () -> Unit,
     onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val photoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(MAX_GEM_PHOTO_COUNT),
+        onResult = onPhotosSelected,
+    )
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -123,9 +135,13 @@ fun AddGemScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             PhotoGrid(
-                photos = emptyList(),
-                onRemove = {},
-                onAdd = {},
+                photos = state.photoUris,
+                onRemove = onPhotoRemove,
+                onAdd = {
+                    photoPicker.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                    )
+                },
             )
 
             OutlinedTextField(
@@ -193,6 +209,8 @@ private fun AddGemScreenPreview() {
             onRatingChange = {},
             onCommentChange = {},
             onFavoriteClick = {},
+            onPhotosSelected = {},
+            onPhotoRemove = {},
             onBackClick = {},
             onAddClick = {},
         )
