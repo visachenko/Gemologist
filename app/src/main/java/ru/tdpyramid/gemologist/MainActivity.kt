@@ -13,10 +13,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val gemologistApplication = application as GemologistApplication
-        val gemService = GemService(gemologistApplication.database.gemDao())
+        val gemService = GemService(
+            gemDao = gemologistApplication.database.gemDao(),
+            photoService = gemologistApplication.photoService,
+        )
         setContent {
             GemologistTheme {
-                GemologistApp(gemService)
+                GemologistApp(
+                    gemService = gemService,
+                    photoService = gemologistApplication.photoService,
+                )
             }
         }
     }

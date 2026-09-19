@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -33,9 +32,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.tdpyramid.gemologist.R
 import ru.tdpyramid.gemologist.data.Gem
-import ru.tdpyramid.gemologist.ui.components.GemPreview
+import ru.tdpyramid.gemologist.ui.components.GemPhotoCarousel
 import ru.tdpyramid.gemologist.ui.components.PreviewIconButton
-import ru.tdpyramid.gemologist.ui.components.gemPreviewColor
 import ru.tdpyramid.gemologist.ui.theme.GemologistTheme
 import java.util.Locale
 
@@ -56,10 +54,10 @@ fun GemDetailsScreen(
                 .fillMaxWidth()
                 .aspectRatio(1f),
         ) {
-            GemPreview(
-                color = gemPreviewColor(gem?.name.orEmpty()),
+            GemPhotoCarousel(
+                gemName = gem?.name.orEmpty(),
+                photos = gem?.photoUris.orEmpty(),
                 modifier = Modifier.fillMaxSize(),
-                shape = RoundedCornerShape(0.dp),
             )
 
             Row(

@@ -54,8 +54,9 @@ fun GemItem(
                 .fillMaxWidth()
                 .aspectRatio(1f),
         ) {
-            GemPreview(
-                color = gemPreviewColor(item.name),
+            GemImage(
+                uri = item.photoUris.firstOrNull(),
+                placeholderColor = gemPreviewColor(item.name),
                 modifier = Modifier.fillMaxSize(),
             )
 

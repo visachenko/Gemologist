@@ -7,9 +7,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.tdpyramid.gemologist.repository.GemDatabase
 import ru.tdpyramid.gemologist.repository.GemEntity
+import ru.tdpyramid.gemologist.service.PhotoService
 import kotlin.random.Random
 
 class GemologistApplication : Application() {
+    val photoService: PhotoService by lazy { PhotoService(this) }
+
+    override fun onCreate() {
+        super.onCreate()
+        photoService.clearAllPhotos()
+    }
+
     val database: GemDatabase by lazy {
         val scope = CoroutineScope(Dispatchers.IO)
         Room.inMemoryDatabaseBuilder<GemDatabase>(this)

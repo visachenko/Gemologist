@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import ru.tdpyramid.gemologist.service.GemService
+import ru.tdpyramid.gemologist.service.PhotoService
 import ru.tdpyramid.gemologist.ui.route.AddGemRoute
 import ru.tdpyramid.gemologist.ui.route.GemDetailsRoute
 import ru.tdpyramid.gemologist.ui.route.HomeRoute
@@ -22,6 +23,7 @@ import ru.tdpyramid.gemologist.viewModel.GemListViewModel
 @Composable
 fun GemologistApp(
     gemService: GemService,
+    photoService: PhotoService,
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
@@ -86,7 +88,8 @@ fun GemologistApp(
                 factory = viewModelFactory {
                     initializer {
                         AddGemViewModel(
-                            gemService = gemService
+                            gemService = gemService,
+                            photoService = photoService,
                         )
                     }
                 }
@@ -97,9 +100,14 @@ fun GemologistApp(
                 onRatingChange = addGemViewModel::onRatingChange,
                 onCommentChange = addGemViewModel::onCommentChange,
                 onFavoriteClick = addGemViewModel::onFavoriteClick,
-                onPhotosSelected = addGemViewModel::onPhotosSelected,
+                createCropDestination = addGemViewModel::createCropDestination,
+                onPhotoCropped = addGemViewModel::onPhotoCropped,
+                onCropCancelled = addGemViewModel::onCropCancelled,
                 onPhotoRemove = addGemViewModel::onPhotoRemove,
-                onBackClick = { navController.navigateUp() },
+                onBackClick = {
+                    addGemViewModel.discardPhotos()
+                    navController.navigateUp()
+                },
                 onAddClick = {
                     addGemViewModel.addGem {
                         navController.navigateUp()
